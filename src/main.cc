@@ -48,6 +48,18 @@ void print_time_elapsed(const char* desc, struct timeval* start, struct
 
 int main(int argc, char **argv)
 {
+
+
+   #ifdef __AVX512BW__
+
+   printf("Using __AVX512BW__\n");
+
+   #else
+
+   printf("Using regular instructions\n");
+
+   #endif
+
    if (argc < 2) {
       fprintf(stderr, "Please specify the log of the number of slots in the CQF.\n");
       exit(1);
@@ -87,6 +99,11 @@ int main(int argc, char **argv)
       if (!vqf_insert(filter, vals[i])) {
          fprintf(stderr, "Insertion failed");
          exit(EXIT_FAILURE);
+      } else {
+         if (!vqf_is_present(filter, vals[i])){
+            printf("Failure to insert\n");
+            vqf_is_present(filter, vals[i]);
+         }
       }
    }
    gettimeofday(&end, &tzp);
@@ -94,7 +111,8 @@ int main(int argc, char **argv)
    gettimeofday(&start, &tzp);
    for (uint64_t i = 0; i < nvals; i++) {
       if (!vqf_is_present(filter, vals[i])) {
-         fprintf(stderr, "Lookup failed for %ld", vals[i]);
+         fprintf(stderr, "Lookup failed for %llu - %ld", i, vals[i]);
+         vqf_is_present(filter, vals[i]);
          exit(EXIT_FAILURE);
       }
    }

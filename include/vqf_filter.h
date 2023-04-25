@@ -20,34 +20,19 @@
 extern "C" {
 #endif
 
-   // NOTE: Currently the code only works for TAG_BITS 8 and 16.
+   // NOTE: Currently the code only works for TAG_BITS 8
+   // This filter variant is being tuned exclusively for MetaHipMer, so only the minimum required for that application is being done.
 #define TAG_BITS 8
 
 	// metadata: 1 --> end of the run
 	// Each 1 is preceded by k 0s, where k is the number of remainders in that
 	// run.
 
+
 #if TAG_BITS == 8
 	// We are using 8-bit tags.
-	// One block consists of 48 8-bit slots covering 80 buckets, and 80+48 = 128
-	// bits of metadata.
-	typedef struct __attribute__ ((__packed__)) vqf_block {
-		uint64_t md[2];
-		uint8_t tags[48];
-	} vqf_block;
-#elif TAG_BITS == 12
-	// We are using 12-bit tags.
-	// One block consists of 32 12-bit slots covering 96 buckets, and 96+32 = 128
-	// bits of metadata.
-        // NOTE: not supported yet.
-	typedef struct __attribute__ ((__packed__)) vqf_block {
-		uint64_t md[2];
-		uint8_t tags[32]; // 32 12-bit tags
-	} vqf_block;
-#elif TAG_BITS == 16 
-	// We are using 16-bit tags.
-	// One block consists of 28 16-bit slots covering 36 buckets, and 36+28 = 64
-	// bits of metadata.
+	// One block consists of 28 8-bit slots covering 36 buckets, and 28+36 = 64
+	// bits of metadata. Each tag has an 8-bit value for 8+28+28 = 64
 	typedef struct __attribute__ ((__packed__)) vqf_block {
 		uint64_t md;
 		uint16_t tags[28];
@@ -71,6 +56,8 @@ extern "C" {
 	vqf_filter * vqf_init(uint64_t nslots);
 
 	bool vqf_insert(vqf_filter * restrict filter, uint64_t hash);
+
+	bool vqf_insert_val(vqf_filter * restrict filter, uint64_t hash, uint8_t val);
 	
 	bool vqf_remove(vqf_filter * restrict filter, uint64_t hash);
 

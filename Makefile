@@ -8,7 +8,15 @@ ifeq ($(P),1)
    OPT=-g -no-pie
 endif
 
+
 HAVE_AVX512=$(filter-out 0,$(shell lscpu | grep avx512bw | wc -l))
+
+
+# ifeq ($(HAVE_AVX512),1)
+# 	@echo Has byte/word AVX instructions
+# else
+# 	@echo Does not have byte/word AVX instructions
+# endif
 
 ifeq ($(THREAD),1)
    OPT +=-DENABLE_THREADS
@@ -22,7 +30,7 @@ LOC_INCLUDE=include
 LOC_SRC=src
 OBJDIR=obj
 
-CXXFLAGS += -Wall $(DEBUG) $(PROFILE) $(OPT) $(ARCH) -m64 -I. -I$(LOC_INCLUDE)
+CXXFLAGS += -Wall $(DEBUG) $(PROFILE) $(OPT) $(ARCH) -m64 -I. -I$(LOC_INCLUDE) 
 
 CFLAGS += -Wall $(DEBUG) $(PROFILE) $(OPT) $(ARCH) -m64 -I. -I$(LOC_INCLUDE)
 
