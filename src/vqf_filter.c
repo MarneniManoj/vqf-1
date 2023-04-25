@@ -363,7 +363,12 @@ static inline uint64_t generate_match_mask(vqf_filter * restrict filter, uint64_
          1) : one[0] << (sizeof(uint64_t)/2);
    uint64_t end = lookup_64(filter->blocks[index].md, offset);
 
-   uint64_t mask = end - start;
+   uint64_t mask = (end - start) >> 4;
+
+ 
+   //printf("Tag is %llx, Mask is %llx, result is %llx, output %llx\n", tag, mask, result, mask & result);
+
+
    return (mask & result);
 
    //return 0;
@@ -504,7 +509,7 @@ static inline bool check_tags(vqf_filter * restrict filter, uint64_t tag,
 
 
 
-   return (generate_match_mask(filter, tag, block_index) == 0);
+   return (generate_match_mask(filter, tag, block_index) != 0);
 }
 
 

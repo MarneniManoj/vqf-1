@@ -101,13 +101,14 @@ int main(int argc, char **argv)
          exit(EXIT_FAILURE);
       } else {
          if (!vqf_is_present(filter, vals[i])){
-            printf("Failure to insert\n");
+            printf("Failure to insert %llx\n", vals[i]);
             vqf_is_present(filter, vals[i]);
          }
       }
    }
    gettimeofday(&end, &tzp);
    print_time_elapsed("Insertion time", &start, &end, nvals, "insert");
+
    gettimeofday(&start, &tzp);
    for (uint64_t i = 0; i < nvals; i++) {
       if (!vqf_is_present(filter, vals[i])) {

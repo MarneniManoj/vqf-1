@@ -9,7 +9,7 @@ ifeq ($(P),1)
 endif
 
 
-HAVE_AVX512=$(filter-out 0,$(shell lscpu | grep avx512bw | wc -l))
+#HAVE_AVX512=$(filter-out 0,$(shell lscpu | grep avx512bw | wc -l))
 
 
 # ifeq ($(HAVE_AVX512),1)
