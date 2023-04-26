@@ -11,7 +11,7 @@
 
 #ifndef _VQF_FILTER_H_
 #define _VQF_FILTER_H_
-
+#include <vector>
 #include <inttypes.h>
 #include <stdbool.h>
 
@@ -62,8 +62,11 @@ extern "C" {
 	bool vqf_remove(vqf_filter * restrict filter, uint64_t hash);
 
 	bool vqf_is_present(vqf_filter * restrict filter, uint64_t hash);
+    bool vqf_query(vqf_filter * restrict filter, uint64_t hash, uint8_t & value);
+    bool vqf_query_iter(vqf_filter * restrict filter, uint64_t hash, std::vector<uint8_t>& values);
 
 #ifdef __cplusplus
+
 }
 #endif
 

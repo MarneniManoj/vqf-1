@@ -8,7 +8,7 @@
  *
  * ============================================================================
  */
-
+#include <vector>
 #include <algorithm>
 #include <stdint.h>
 #include <string.h>
@@ -528,13 +528,35 @@ static inline bool retrieve_value(vqf_filter * restrict filter, uint64_t tag, ui
 
       //move 8 bytes ahead on the first set bit
       // to account for the metadata.
-      uint16_t pair = filter->blocks[index].tags[first_set-4];
+      uint16_t pair = filter->blocks[index].tags[first_set];
 
       val = pair >> 8;
       return true;
 
    }
 
+}
+
+
+
+static inline bool retrieve_values(vqf_filter * restrict filter, uint64_t tag, uint64_t block_index, std::vector<uint8_t>& values){
+
+        uint64_t mask = generate_match_mask(filter, tag, block_index);
+
+        uint64_t index = block_index / QUQU_BUCKETS_PER_BLOCK;
+
+        if(mask == 0) return false;
+
+        int i = 0;
+        while (mask > 0) {
+            if (mask & 1) {  // Check if the least significant bit is set
+                uint16_t pair = filter->blocks[index].tags[i];
+                values.push_back(pair >> 8);
+             }
+            mask >>= 1;  // Shift the bits to the right
+            i++;
+        }
+        return true;
 }
 
 // If the item goes in the i'th slot (starting from 0) in the block then
@@ -560,7 +582,21 @@ bool vqf_is_present(vqf_filter * restrict filter, uint64_t hash) {
    /*print_block(filter, alt_block_index / QUQU_SLOTS_PER_BLOCK);*/
    /*}*/
 }
+bool vqf_query_iter(vqf_filter * restrict filter, uint64_t hash, std::vector<uint8_t>& values){
+    vqf_metadata * restrict metadata           = &filter->metadata;
+    //vqf_block    * restrict blocks             = filter->blocks;
+    uint64_t                 key_remainder_bits = metadata->key_remainder_bits;
+    uint64_t                 range              = metadata->range;
 
+    uint64_t block_index = hash >> key_remainder_bits;
+    uint64_t tag = hash & TAG_MASK;
+    uint64_t alt_block_index = ((hash ^ (tag * 0x5bd1e995)) % range) >> key_remainder_bits;
+
+    __builtin_prefetch(&filter->blocks[alt_block_index / QUQU_BUCKETS_PER_BLOCK]);
+
+    return retrieve_values(filter, tag, block_index, values) || retrieve_values(filter, tag, alt_block_index, values);
+
+}
 bool vqf_query(vqf_filter * restrict filter, uint64_t hash, uint8_t & value){
 
    vqf_metadata * restrict metadata           = &filter->metadata;
